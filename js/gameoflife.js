@@ -90,18 +90,18 @@ const getLivingNeighbors = (cell, state) => {
 const willBeAlive = (cell, state) => {
 
   const livingNeighbours = getLivingNeighbors(cell, state);
-  console.log({ state, cell, livingNeighbours })
-  if (livingNeighbours.length >= 3) {
-    console.log("3+ living neighbours")
+  //console.log({ state, cell, livingNeighbours })
+  if (livingNeighbours.length === 3) {
+    //console.log("3 living neighbours")
     return true;
   }
   if (livingNeighbours.length == 2) {
-    console.log("2 living neighbours")
+    //console.log("2 living neighbours")
     if (contains.call(state, cell)) {
-      console.log("And is currently alive")
+      //console.log("And is currently alive")
       return true;
     } else {
-      console.log("But sadly is dead")
+      //console.log("But sadly is dead")
       return false;
     }
   }
@@ -109,11 +109,51 @@ const willBeAlive = (cell, state) => {
 
 };
 
-const calculateNext = (state) => { };
 
-const iterate = (state, iterations) => { };
+const calculateNext = (state) => {
 
-const main = (pattern, iterations) => { };
+  const grid = corners(state);
+  const extendedGrid = {
+    bottomLeft: [grid.bottomLeft[0] - 1, grid.bottomLeft[1] - 1],
+    topRight: [grid.topRight[0] + 1, grid.topRight[1] + 1]
+  }
+  let nextState = [];
+
+  for (row = extendedGrid.topRight[1]; row >= extendedGrid.bottomLeft[1]; row--) {
+    //console.log({ row });
+    for (col = extendedGrid.bottomLeft[0]; col <= extendedGrid.topRight[0]; col++) {
+      //console.log(col)
+
+      if (willBeAlive([col, row], state)) {
+        nextState.push([col, row])
+      }
+    }
+  }
+
+  return nextState
+
+};
+
+const iterate = (state, iterations) => {
+
+  let states = [state];
+  let oldState = [...state];
+  for (i = 0; i < iterations; i++) {
+    let newState = calculateNext(oldState);
+    states.push(newState);
+    oldState = [...newState];
+  }
+  return states
+
+};
+
+const main = (pattern, iterations) => {
+
+  const states = iterate(startPatterns[pattern], iterations);
+  states.forEach(state => { console.log(printCells(state) + "\n") })
+
+
+};
 
 const startPatterns = {
   rpentomino: [
